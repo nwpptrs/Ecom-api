@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+    id Int @id @default(autoincrement())
+    email String @unique
+    password String?
+    name String?
+    pictureUrl      String?    
+    picturePublicId String?    
+    role String @default("user")
+    enabled Boolean @default(true)
+    address String?
+    orders Order[]
+    carts Cart[]
+    orderReviews OrderReview[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+model Product {
+    id Int @id @default(autoincrement())
+    title String
+    description String
+    price Float
+    sold Int @default(0)
+    quantity Int
+    orderItems ProductOnOrder[]
+    cartitems ProductOnCart[]
+    images Image[]
+    category Category @relation(fields:[categoryId], references:[id])
+    categoryId Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+model Order {
+    id Int @id @default(autoincrement())
+    cartTotal Float
+    orderStatus String @default("รอดำเนินการ")
+    products ProductOnOrder[]
+    orderedBy User @relation(fields:[orderedById], references:[id])
+    orderedById Int 
+    stripePaymentId String  
+    amount              Int               
+    paymentStatus       String           
+    currency            String            
+    review OrderReview?
+    address             String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+model OrderReview {
+    id        Int      @id @default(autoincrement())
+    rating    Int
+    comment   String
+    createdAt DateTime @default(now())
+    order     Order    @relation(fields: [orderId], references: [id])
+    orderId   Int      @unique  // เพื่อให้ 1 ออเดอร์รีวิวได้แค่ครั้งเดียว
+    user      User     @relation(fields: [userId], references: [id])
+    userId    Int
+}
+model ProductOnOrder {
+    id Int @id @default(autoincrement())
+    product Product @relation(fields:[productId], references:[id],onDelete: Cascade)
+    productId Int 
+    order Order @relation(fields:[orderId], references:[id],onDelete: Cascade)
+    orderId Int 
+    count Int
+    price Float
+  }
+model Category {
+    id Int @id @default(autoincrement())
+    name String
+    products Product[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+model Cart {
+    id Int @id @default(autoincrement())
+    cartTotal Float
+    orderedBy User @relation(fields:[orderedById], references:[id])
+    orderedById Int 
+    products ProductOnCart[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+model ProductOnCart {
+    id Int  @id @default(autoincrement())
+    cart Cart @relation(fields:[cartId], references:[id],onDelete: Cascade)
+    cartId Int 
+    product Product @relation(fields:[productId], references:[id])
+    productId Int 
+    count Int
+    price Float
+  }  
+  model Image {
+      id Int @id @default(autoincrement())
+      asset_id String
+      public_id String
+      url String
+      secure_url String
+      product Product @relation(fields:[productId], references:[id],onDelete: Cascade)
+      productId Int 
+      createdAt DateTime @default(now())
+      updatedAt DateTime @updatedAt
+    }
+
+
