@@ -385,7 +385,6 @@ exports.getUserOrders = async (req, res) => {
         message: "No Order",
       });
     }
-    console.log(orderlist);
 
     res.send(orderlist);
   } catch (error) {
