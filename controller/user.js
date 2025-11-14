@@ -408,7 +408,8 @@ exports.createOrderReview = async (req, res) => {
       return res.status(403).json({ message: "คุณไม่มีสิทธิ์รีวิว order นี้" });
     }
 
-    if (order.orderStatus !== "เสร็จสิ้น") {
+    if (order.orderStatus !== "จัดส่งสำเร็จ") {
+      j;
       return res
         .status(400)
         .json({ message: "ยังไม่สามารถรีวิว order นี้ได้" });
